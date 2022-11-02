@@ -18,6 +18,7 @@ function App() {
   const [choiceOne, setChoiceOne] = useState(null)
   const [choiceTwo, setChoiceTwo] = useState(null)
   const [disabled, setDisabled] = useState(false)
+  const [shake, setShake] = useState(false)
 
   const shuffleCards = () => {
     const shuffledCards = [...cardImages, ...cardImages].sort((a, c) => Math.random() - 0.5).map((card) => ({ ...card, id: Math.random() }))
@@ -26,9 +27,7 @@ function App() {
   }
 
   const handleChoice = (card) => {
-    if (!disabled) {
-      choiceOne ? setChoiceTwo(card) : setChoiceOne(card)
-    }
+    choiceOne ? setChoiceTwo(card) : setChoiceOne(card)
   }
 
   const resetTurn = () => {
@@ -51,15 +50,23 @@ function App() {
             }
           })
         )
+      } else {
+        setShake(true)
       }
       setTimeout(() => {
         resetTurn()
         setDisabled(false)
-      }, 1000)
-
+        setShake(false)
+      }, 500)
       // reset choiceONe, choiceTwo states and add one count to the turns(trial)
     }
   }, [choiceOne, choiceTwo])
+
+  useEffect(() => {
+    shuffleCards()
+    setChoiceOne(null)
+    setChoiceTwo(null)
+  }, [])
 
   return (
     <div className="App">
@@ -68,11 +75,11 @@ function App() {
       <div className="card-grid">
         {cards.map((card) => (
           <Fragment key={card.id}>
-            <SingleCard card={card} handleChoice={handleChoice} flipped={card === choiceOne || card === choiceTwo || card.matched} />
+            <SingleCard card={card} handleChoice={handleChoice} flipped={card === choiceOne || card === choiceTwo || card.matched} disabled={disabled} shake={shake} />
           </Fragment>
         ))}
       </div>
-      <p>{turns}</p>
+      <p>Turns: {turns}</p>
     </div>
   )
 }
